@@ -1,0 +1,195 @@
+1. Afghanistan
+2. Albania
+3. Algeria
+4. Andorra
+5. Angola
+6. Antigua and Barbuda
+7. Argentina
+8. Armenia
+9. Australia
+10. Austria
+11. Azerbaijan
+12. Bahamas
+13. Bahrain
+14. Bangladesh
+15. Barbados
+16. Belarus
+17. Belgium
+18. Belize
+19. Benin
+20. Bhutan
+21. Bolivia (Plurinational State of)
+22. Bosnia and Herzegovina
+23. Botswana
+24. Brazil
+25. Brunei Darussalam
+26. Bulgaria
+27. Burkina Faso
+28. Burundi
+29. Cabo Verde
+30. Cambodia
+31. Cameroon
+32. Canada
+33. Central African Republic
+34. Chad
+35. Chile
+36. China
+37. Colombia
+38. Comoros
+39. Congo
+40. Costa Rica
+41. Côte d'Ivoire
+42. Croatia
+43. Cuba
+44. Cyprus
+45. Czech Republic
+46. Democratic People's Republic of Korea
+47. Democratic Republic of the Congo
+48. Denmark
+49. Djibouti
+50. Dominica
+51. Dominican Republic
+52. Ecuador
+53. Egypt
+54. El Salvador
+55. Equatorial Guinea
+56. Eritrea
+57. Estonia
+58. Eswatini
+59. Ethiopia
+60. Fiji
+61. Finland
+62. France
+63. Gabon
+64. Gambia
+65. Georgia
+66. Germany
+67. Ghana
+68. Greece
+69. Grenada
+70. Guatemala
+71. Guinea
+72. Guinea-Bissau
+73. Guyana
+74. Haiti
+75. Honduras
+76. Hungary
+77. Iceland
+78. India
+79. Indonesia
+80. Iran (Islamic Republic of)
+81. Iraq
+82. Ireland
+83. Israel
+84. Italy
+85. Jamaica
+86. Japan
+87. Jordan
+88. Kazakhstan
+89. Kenya
+90. Kiribati
+91. Kuwait
+92. Kyrgyzstan
+93. Lao People's Democratic Republic
+94. Latvia
+95. Lebanon
+96. Lesotho
+97. Liberia
+98. Libya
+99. Liechtenstein
+100. Lithuania
+101. Luxembourg
+102. Madagascar
+103. Malawi
+104. Malaysia
+105. Maldives
+106. Mali
+107. Malta
+108. Marshall Islands
+109. Mauritania
+110. Mauritius
+111. Mexico
+112. Micronesia (Federated States of)
+113. Monaco
+114. Mongolia
+115. Montenegro
+116. Morocco
+117. Mozambique
+118. Myanmar
+119. Namibia
+120. Nauru
+121. Nepal
+122. Netherlands
+123. New Zealand
+124. Nicaragua
+125. Niger
+126. Nigeria
+127. North Macedonia
+128. Norway
+129. Oman
+130. Pakistan
+131. Palau
+132. Panama
+133. Papua New Guinea
+134. Paraguay
+135. Peru
+136. Philippines
+137. Poland
+138. Portugal
+139. Qatar
+140. Republic of Korea
+141. Republic of Moldova
+142. Romania
+143. Russian Federation
+144. Rwanda
+145. Saint Kitts and Nevis
+146. Saint Lucia
+147. Saint Vincent and the Grenadines
+148. Samoa
+149. San Marino
+150. Sao Tome and Principe
+151. Saudi Arabia
+152. Senegal
+153. Serbia
+154. Seychelles
+155. Sierra Leone
+156. Singapore
+157. Slovakia
+158. Slovenia
+159. Solomon Islands
+160. Somalia
+161. South Africa
+162. South Sudan
+163. Spain
+164. Sri Lanka
+165. Sudan
+166. Suriname
+167. Sweden
+168. Switzerland
+169. Syrian Arab Republic
+170. Tajikistan
+171. Thailand
+172. Timor-Leste
+173. Togo
+174. Tonga
+175. Trinidad and Tobago
+176. Tunisia
+177. Turkey
+178. Turkmenistan
+179. Tuvalu
+180. Uganda
+181. Ukraine
+182. United Arab Emirates
+183. United Kingdom of Great Britain and Northern Ireland
+184. United Republic of Tanzania
+185. United States of America
+186. Uruguay
+187. Uzbekistan
+188. Vanuatu
+189. Venezuela (Bolivarian Republic of)
+190. Viet Nam
+191. Yemen
+192. Zambia
+193. Zimbabwe
+194. Holy See (Vatican City)
+195. State of Palestine
