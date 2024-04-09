@@ -12,9 +12,13 @@ struct GameObject {
 
 	sf::Sprite sprite;
 	sf::Texture texture1;
+};
+
+struct GameTile : GameObject {
 	sf::Texture texture2;
-	bool if_matched = 0; //playerul a gasit perechea
+	bool is_matched = 0; //playerul a gasit perechea
 	bool is_set = 0; //a fost setata textura cu tara
+	int pair_i, pair_j;
 };
 
 const int board_size = 6;
@@ -25,9 +29,11 @@ private:
 	sf::VideoMode video_mode;
 	sf::RenderWindow* window;
 	sf::Event sfml_event;
-	GameObject board[board_size][board_size];
+	GameObject background_image;
+	GameTile board[board_size][board_size];
 	bool end_game;
 
+	void InitialiseBackground();
 	void InitialiseTexture2();
 	void InitialiseWindow();
 	void InitialiseVariables();
@@ -47,6 +53,7 @@ public:
 	const bool Running() const;
 
 	void CheckMatch();
+	void DrawBackground();
 	void DrawBoard();
 	void PollEvents();
 	void Update();
