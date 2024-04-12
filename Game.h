@@ -5,20 +5,26 @@
 #include <SFML/System.hpp>
 #include <SFML/Network.hpp>
 #include <vector>
+#include <string>
 #include <iostream>
 #include <ctime>
+
+///std::vector <std::string> countries;
+///int countries_number;
 
 struct GameObject {
 
 	sf::Sprite sprite;
 	sf::Texture texture1;
+	sf::Texture hover_texture;
 };
 
 struct GameTile : GameObject {
 	sf::Texture texture2;
 	bool is_matched = 0; //playerul a gasit perechea
 	bool is_set = 0; //a fost setata textura cu tara
-	int pair_i, pair_j;
+	int number;
+	std::string denumire_tara;
 };
 
 const int board_size = 6;

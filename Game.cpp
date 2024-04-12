@@ -1,5 +1,4 @@
 #include "Game.h"
-
 //TO DO
 //SA IMPLEMENTEZ O FUNCTIONALITATE CARE DA PUNCTE PROPORTIONAL CU DE CATE ORI INCEARCA PLAYERUL
 //SA FACA MATCH-UL
@@ -9,6 +8,7 @@
 //SA SE AFISEZE SCORUL
 //DE ADAUGAT IN CAZUL IN CARE NU FACE MATCH PLAYERUL, UN SPRITE CU X ROSU CU FUNDAL TRANSPARENT PESTE CEL DEJA DESENAT
 //si cu bifa cand facem matchul
+//sa vad cum fac cu denumirile tarilor sa stiu cui i le atribui
 
 
 const int cell_size = 100;
@@ -67,10 +67,10 @@ void Game::InitialiseTexture2() //nu e testata inca
 			{
 				
 				//generam un numar corespunzator unei tari
-				number = rand() % 195;
-				while (set_numbers[number]) number = rand() % 195;
+				number = rand() % 20;
+				while (set_numbers[number]) number = rand() % 20;
 				//am setat tara ca fiind pusa in joc
-				set_numbers[number] = 1;
+				set_numbers[number] = 1; //am pus acea tara o data in joc, nu vrem sa se repete
 				board[i][j].is_set = 1; //punem inainte pt a nu pune cumva pe ac poz
 				//cautam un alt sprite pt i,j pt a putea avea doua sprite-uri la fel pt match
 				i2 = rand() % 36;
@@ -95,10 +95,8 @@ void Game::InitialiseTexture2() //nu e testata inca
 				//am adaugat o tara si am setat doua sprite-uri din board
 				board[i2][j2].is_set = 1;
 			
-				board[i][j].pair_i = i2;
-				board[i][j].pair_j = j2;
-				board[i2][j2].pair_i = i;
-				board[i2][j2].pair_j = j;
+				board[i][j].number = number;
+				board[i2][j2].number = number;
 
 
 			}
@@ -117,9 +115,14 @@ void Game::SetUpBoard()
 				std::cout << "Nu s-a incarcat tile" << std::endl; // Error loading texture
 				break;
 			}
-			if (!board[i][j].texture2.loadFromFile("tile2.png"))
+			if (!board[i][j].texture2.loadFromFile("countries/tile001.png"))
 			{
 				std::cout << "Nu s-a incarcat tile2" << std::endl;
+				break;
+			}
+			if (!board[i][j].hover_texture.loadFromFile("hover.png"))
+			{
+				std::cout << "Nu s-a incarcat hover-ul" << std::endl;
 				break;
 			}
 			board[i][j].sprite.setTexture(board[i][j].texture1);
@@ -130,8 +133,7 @@ void Game::SetUpBoard()
 
 void Game::CheckMatch()
 {
-	if (board[turned_sprite1_i][turned_sprite1_j].pair_i == turned_sprite2_i &&
-		board[turned_sprite1_i][turned_sprite1_j].pair_j == turned_sprite2_j)
+	if (board[turned_sprite1_i][turned_sprite1_j].number == board[turned_sprite2_i][turned_sprite2_j].number)
 	{
 		board[turned_sprite1_i][turned_sprite1_j].is_matched = 1;
 		board[turned_sprite2_i][turned_sprite2_j].is_matched = 1;
@@ -197,7 +199,17 @@ void Game::PollEvents()
 							}
 				}
 			}
-			
+		 case::sf::Event::MouseMoved:
+			sf::Vector2f mouse_position = this->window->mapPixelToCoords(sf::Mouse::getPosition(*this->window));
+			for (int i = 0; i < board_size; i++)
+				for (int j = 0; j < board_size; j++)
+					if (board[i][j].sprite.getGlobalBounds().contains(mouse_position))
+					{
+						if (board[i][j].sprite.getTexture() == &board[i][j].texture1)
+							board[i][j].sprite.setTexture(board[i][j].hover_texture);
+					}
+					else if (board[i][j].sprite.getTexture() == &board[i][j].hover_texture)
+						board[i][j].sprite.setTexture(board[i][j].texture1);
 		}
 	}
 }
