@@ -15,12 +15,12 @@
 struct GameObject {
 
 	sf::Sprite sprite;
-	sf::Texture texture1;
+	sf::Texture texture_unturned;
 	sf::Texture hover_texture;
 };
 
 struct GameTile : GameObject {
-	sf::Texture texture2;
+	sf::Texture texture_turned;
 	bool is_matched = 0; //playerul a gasit perechea
 	bool is_set = 0; //a fost setata textura cu tara
 	int number;
@@ -40,7 +40,7 @@ private:
 	bool end_game;
 
 	void InitialiseBackground();
-	void InitialiseTexture2();
+	void InitialiseTextureTurned();
 	void InitialiseWindow();
 	void InitialiseVariables();
 	void SetUpBoard();
