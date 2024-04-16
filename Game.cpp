@@ -1,4 +1,5 @@
 #include "Game.h"
+#include <cmath>
 //TO DO
 //SA IMPLEMENTEZ O FUNCTIONALITATE CARE DA PUNCTE PROPORTIONAL CU DE CATE ORI INCEARCA PLAYERUL
 //SA FACA MATCH-UL
@@ -11,15 +12,46 @@
 //sa vad cum fac cu denumirile tarilor sa stiu cui i le atribui
 
 
+const int perfect_match_points = 1000;
 const int cell_size = 100;
 
 int turned_sprite1_i, turned_sprite1_j, turned_sprite2_i, turned_sprite2_j;
 int num_clicks = 0;
 bool set_numbers[200]; //un vector caracteristic in care tinemi minte daca tilex unde x este un nr de la 1-195 (tarile lumii) a fost pusa deja in board sau nu
 
+void Game::InitialiseSounds()
+{
+	sf::SoundBuffer buffer;
+	if (!buffer.loadFromFile("cute-level-up-3-189853.mp3"))
+	{
+		std::cout << "Nu s-a incarcat un sound pt corect" << std::endl;
+		return;
+	}
+	this->right_sound.setBuffer(buffer);
+	if (!buffer.loadFromFile("error-126627.mp3"))
+	{
+		std::cout << "Nu s-a incarcat un sound pt gresit" << std::endl;
+		return;
+	}
+	this->wrong_sound.setBuffer(buffer);
+	std::cout << "AM REUSITTTT" << std::endl;
+}
+
 void Game::InitialiseVariables()
 {
 	this->end_game = false;
+
+	/*if (!check_mark.texture_unturned.loadFromFile("bifa.png"))
+	{
+		std::cout << "Nu s-a incarcat textura pentru bifa" << std::endl;
+	}
+	check_mark.sprite.setTexture(check_mark.texture_unturned);
+
+	if (!x_mark.texture_unturned.loadFromFile("xmark.png"))
+	{
+		std::cout << "Nu s-a incarcat textura pentru X" << std::endl;
+	}
+	x_mark.sprite.setTexture(x_mark.texture_unturned);*/
 }
 
 void Game::InitialiseWindow()
@@ -41,6 +73,7 @@ void Game::InitialiseBackground()
 Game::Game()
 {
 	srand(static_cast<unsigned>(time(0)));
+	this->InitialiseSounds();
 	this->InitialiseVariables();
 	this->InitialiseWindow();
 	this->InitialiseBackground();
@@ -65,7 +98,7 @@ void Game::InitialiseTextureTurned() //nu e testata inca
 		for (int j = 0; j < board_size; j++)
 			if (!board[i][j].is_set) //doar daca nu e inca setat acest tile
 			{
-				
+
 				//generam un numar corespunzator unei tari
 				number = rand() % 18;
 				while (set_numbers[number]) number = rand() % 18; //cat timp numarul ala a fost deja folosit
@@ -94,9 +127,9 @@ void Game::InitialiseTextureTurned() //nu e testata inca
 				}
 				//am adaugat o tara si am setat doua sprite-uri din board
 				board[i2][j2].is_set = 1;
-			
-				board[i][j].number = number;
-				board[i2][j2].number = number;
+
+				board[i][j].country_number = number;
+				board[i2][j2].country_number = number;
 
 
 			}
@@ -121,26 +154,35 @@ void Game::SetUpBoard()
 				break;
 			}
 			board[i][j].sprite.setTexture(board[i][j].texture_unturned);
-			board[i][j].sprite.setPosition(50+ j * (cell_size + 5),50 + i * (cell_size + 5));
+			board[i][j].sprite.setPosition(50 + j * (cell_size + 5), 50 + i * (cell_size + 5));
 		}
 	}
 }
 
 void Game::CheckMatch()
 {
-	if (board[turned_sprite1_i][turned_sprite1_j].number == board[turned_sprite2_i][turned_sprite2_j].number)
+	if (board[turned_sprite1_i][turned_sprite1_j].country_number == board[turned_sprite2_i][turned_sprite2_j].country_number)
 	{
+		this->right_sound.play();
+		while (this->right_sound.getStatus() == sf::Sound::Playing)
+		{
+			std::cout << "DADA" << std::endl;
+		}
 		board[turned_sprite1_i][turned_sprite1_j].is_matched = 1;
 		board[turned_sprite2_i][turned_sprite2_j].is_matched = 1;
-		num_clicks = 0;
+		this->points += ceil(perfect_match_points / (board[turned_sprite1_i][turned_sprite1_j].number_of_turns + board[turned_sprite2_i][turned_sprite2_j].number_of_turns));
+		std::cout << this->points << std::endl;
 		return;
 	}
 	//TO ADD: daca nu sunt matched vreau un sound si un sprite cu un X si fundal transparent care sa apara
-	for (int i = 0; i < 30; i++) //asta e o solutie temporara pentru ca apare o pb - daca dau render o sg data asta se intampla la un frame si 
-		this->Render();          //e prea rapid pentru ochiul uman si pentru joc (ca sa retii tile- urile pt ca pana la urma e memory game)
+	/*for (int i = 0; i < 1200; i++) //asta e o solutie temporara pentru ca apare o pb - daca dau render o sg data asta se intampla la un frame si 
+		this->Render();*/    //e prea rapid pentru ochiul uman si pentru joc (ca sa retii tile- urile pt ca pana la urma e memory game)
+	
+	//alternativ mai buna
+	sf::sleep(sf::seconds(1));
+	
 	board[turned_sprite1_i][turned_sprite1_j].sprite.setTexture(board[turned_sprite1_i][turned_sprite1_j].texture_unturned);
 	board[turned_sprite2_i][turned_sprite2_j].sprite.setTexture(board[turned_sprite2_i][turned_sprite2_j].texture_unturned);
-	num_clicks = 0;
 }
 
 const bool Game::Running() const
@@ -164,34 +206,36 @@ void Game::PollEvents() //cum poate interactiona playerul cu fereastra jocului
 		case sf::Event::MouseButtonPressed:
 			if (this->sfml_event.mouseButton.button == sf::Mouse::Left)
 			{
-					bool searching = false;
-					sf::Vector2f mouse_position = this->window->mapPixelToCoords(sf::Mouse::getPosition(*this->window));
-					for (int i = 0; i < board_size && !searching; i++)
-						for (int j = 0; j < board_size && !searching; j++)
-							if (!board[i][j].is_matched && board[i][j].sprite.getGlobalBounds().contains(mouse_position))
+				bool searching = false;
+				sf::Vector2f mouse_position = this->window->mapPixelToCoords(sf::Mouse::getPosition(*this->window));
+				for (int i = 0; i < board_size && !searching; i++)
+					for (int j = 0; j < board_size && !searching; j++)
+						if (!board[i][j].is_matched && board[i][j].sprite.getGlobalBounds().contains(mouse_position))
+						{
+							//crestem contorul pt de cate ori s-a intors tile-ul
+							board[i][j].number_of_turns++;
+							searching = true; //am gasit acel sprite pe care am dat click si actionam doar daca e cu textura1
+							if (board[i][j].sprite.getTexture() == &board[i][j].hover_texture) //nu se intampla nimic daca dam click pe un sprite care contine textura2 pt ca e deja intors sau matched
 							{
-								searching = true; //am gasit acel sprite pe care am dat click si actionam doar daca e cu textura1
-								if (board[i][j].sprite.getTexture() == &board[i][j].hover_texture) //nu se intampla nimic daca dam click pe un sprite care contine textura2 pt ca e deja intors sau matched
+								//std::cout << "DA" << std::endl;
+								board[i][j].sprite.setTexture(board[i][j].texture_turned);
+								num_clicks++; //la 2 clickuri inseamna ca am intors doua sprite-uri
+								std::cout << num_clicks << std::endl;
+								if (num_clicks == 1)
 								{
-									//std::cout << "DA" << std::endl;
-									board[i][j].sprite.setTexture(board[i][j].texture_turned);
-									num_clicks++; //la 2 clickuri inseamna ca am intors doua sprite-uri
-									std::cout << num_clicks << std::endl;
-									if (num_clicks == 1)
-									{
-										turned_sprite1_i = i;
-										turned_sprite1_j = j;
-									}
-									else
-									{
-										turned_sprite2_i = i;
-										turned_sprite2_j = j;
-									}
-
+									turned_sprite1_i = i;
+									turned_sprite1_j = j;
 								}
+								else
+								{
+									turned_sprite2_i = i;
+									turned_sprite2_j = j;
+								}
+
 							}
+						}
 			}
-		 case::sf::Event::MouseMoved:
+		case::sf::Event::MouseMoved:
 			sf::Vector2f mouse_position = this->window->mapPixelToCoords(sf::Mouse::getPosition(*this->window));
 			for (int i = 0; i < board_size; i++)
 				for (int j = 0; j < board_size; j++)
@@ -224,7 +268,7 @@ void Game::DrawBoard()
 
 void Game::Update()
 {
-	if (num_clicks == 2) CheckMatch();
+	if (num_clicks == 2) { CheckMatch(); num_clicks = 0; }
 	else this->PollEvents();
 }
 

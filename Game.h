@@ -16,14 +16,14 @@ struct GameObject {
 
 	sf::Sprite sprite;
 	sf::Texture texture_unturned;
-	sf::Texture hover_texture;
 };
 
 struct GameTile : GameObject {
+	sf::Texture hover_texture;
 	sf::Texture texture_turned;
 	bool is_matched = 0; //playerul a gasit perechea
 	bool is_set = 0; //a fost setata textura cu tara
-	int number;
+	int country_number, number_of_turns = 0; //numarul tarii corespunzatoare si numarul de intoarceri al unui tile pentru a calcula punctele
 	std::string denumire_tara;
 };
 
@@ -35,10 +35,13 @@ private:
 	sf::VideoMode video_mode;
 	sf::RenderWindow* window;
 	sf::Event sfml_event;
-	GameObject background_image;
+	GameObject background_image, check_mark, x_mark;
 	GameTile board[board_size][board_size];
+	sf::Sound wrong_sound, right_sound;
 	bool end_game;
+	int points = 0;
 
+	void InitialiseSounds();
 	void InitialiseBackground();
 	void InitialiseTextureTurned();
 	void InitialiseWindow();
@@ -66,6 +69,5 @@ public:
 	void Render();
 	//DESTRUCTOR 
 	~Game();
-	
-};
 
+};
