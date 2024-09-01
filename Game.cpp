@@ -212,6 +212,13 @@ int turned_sprite1_i, turned_sprite1_j, turned_sprite2_i, turned_sprite2_j;
 int num_clicks = 0;
 bool set_numbers[200]; //un vector caracteristic in care tinem minte daca tilex unde x este un nr de la 1-195 (tarile lumii) a fost pusa deja in board sau nu
 
+int match1, match2; //sa tin evidenta perechilor mathc-uite, ma ajuta si sa stiu cee variante scriu si cand
+int guessed;
+
+bool ok; //sa stiu daca maii am voie sa dau click pe board sau nu, daca nu inseamnca ca s a facut un meci si am voie sa dau click doar pe text si pe butoane
+
+std::vector <int> put_options;
+
 /*void Game::InitialiseSounds()
 {
 	sf::SoundBuffer buffer;
@@ -289,6 +296,18 @@ void Game::InitialiseButtons()
 	score.sprite.setPosition(750, 50);
 }
 
+void Game::InitialiseText()
+{
+	if (!font.loadFromFile("NerkoOne-Regular.ttf"))
+	{
+		std::cout << "Nu s-a incarcat fontul pentru scor!\n";
+	}
+	this->text.setFont(font);
+	this->text.setString("0");
+	this->text.setCharacterSize(60);
+	this->text.setFillColor(sf::Color::Black);
+	this->text.setPosition(1080, 80);
+}
 //CONSTRUCTORI
 
 
@@ -302,6 +321,7 @@ Game::Game()
 	//this->InitialiseSounds();
 	this->InitialiseVariables();
 	this->InitialiseWindow();
+	this->InitialiseText();
 	this->InitialiseBackground();
 	this->InitialiseTextureTurned();
 	this->SetUpBoard();
@@ -403,6 +423,8 @@ void Game::CheckMatch()
 		board[turned_sprite2_i][turned_sprite2_j].is_matched = 1;
 		this->points += ceil(perfect_match_points / (board[turned_sprite1_i][turned_sprite1_j].number_of_turns + board[turned_sprite2_i][turned_sprite2_j].number_of_turns));
 		std::cout << this->points << std::endl;
+		match1++;
+		guessed = board[turned_sprite1_i][turned_sprite1_j].country_number;
 		return;
 	}
 	//TO ADD: daca nu sunt matched vreau un sound si un sprite cu un X si fundal transparent care sa apara
@@ -435,38 +457,56 @@ void Game::PollEvents() //cum poate interactiona playerul cu fereastra jocului
 				this->window->close();
 			break;
 		case sf::Event::MouseButtonPressed:
-			if (this->sfml_event.mouseButton.button == sf::Mouse::Left)
-			{
-				bool searching = false;
-				sf::Vector2f mouse_position = this->window->mapPixelToCoords(sf::Mouse::getPosition(*this->window));
-				//std::cout << mouse_position.x << " " << mouse_position.y << std::endl;
-				for (int i = 0; i < board_size && !searching; i++)
-					for (int j = 0; j < board_size && !searching; j++)
-						if (!board[i][j].is_matched && board[i][j].sprite.getGlobalBounds().contains(mouse_position))
-						{
-							//crestem contorul pt de cate ori s-a intors tile-ul
-							board[i][j].number_of_turns++;
-							searching = true; //am gasit acel sprite pe care am dat click si actionam doar daca e cu textura1
-							if (board[i][j].sprite.getTexture() == &board[i][j].hover_texture) //nu se intampla nimic daca dam click pe un sprite care contine textura2 pt ca e deja intors sau matched
+			
+			if (this->sfml_event.mouseButton.button == sf::Mouse::Left) 
+				if(!ok)
+				{
+					bool searching = false;
+					sf::Vector2f mouse_position = this->window->mapPixelToCoords(sf::Mouse::getPosition(*this->window));
+					//std::cout << mouse_position.x << " " << mouse_position.y << std::endl;
+					for (int i = 0; i < board_size && !searching; i++)
+						for (int j = 0; j < board_size && !searching; j++)
+							if (!board[i][j].is_matched && board[i][j].sprite.getGlobalBounds().contains(mouse_position))
 							{
-								//std::cout << board[i][j].country_name << std::endl;
-								board[i][j].sprite.setTexture(board[i][j].texture_turned);
-								num_clicks++; //la 2 clickuri inseamna ca am intors doua sprite-uri
-								//std::cout << num_clicks << std::endl;
-								if (num_clicks == 1)
+								//crestem contorul pt de cate ori s-a intors tile-ul
+								board[i][j].number_of_turns++;
+								searching = true; //am gasit acel sprite pe care am dat click si actionam doar daca e cu textura1
+								if (board[i][j].sprite.getTexture() == &board[i][j].hover_texture) //nu se intampla nimic daca dam click pe un sprite care contine textura2 pt ca e deja intors sau matched
 								{
-									turned_sprite1_i = i;
-									turned_sprite1_j = j;
-								}
-								else
-								{
-									turned_sprite2_i = i;
-									turned_sprite2_j = j;
-								}
+									//std::cout << board[i][j].country_name << std::endl;
+									board[i][j].sprite.setTexture(board[i][j].texture_turned);
+									num_clicks++; //la 2 clickuri inseamna ca am intors doua sprite-uri
+									//std::cout << num_clicks << std::endl;
+									if (num_clicks == 1)
+									{
+										turned_sprite1_i = i;
+										turned_sprite1_j = j;
+									}
+									else
+									{
+										turned_sprite2_i = i;
+										turned_sprite2_j = j;
+									}
 
+								}
 							}
-						}
-			}
+				}
+				else
+				{
+					sf::Vector2f mouse_position = this->window->mapPixelToCoords(sf::Mouse::getPosition(*this->window));
+					if (pass_button.sprite.getGlobalBounds().contains(mouse_position))
+					{
+						ok = 0;
+						put_options.clear();
+						guessed = -1;
+					}
+					else if (hint_button.sprite.getGlobalBounds().contains(mouse_position))
+					{
+						points -= 250;
+
+					}
+				}
+			
 		case::sf::Event::MouseMoved:
 			sf::Vector2f mouse_position = this->window->mapPixelToCoords(sf::Mouse::getPosition(*this->window));
 			for (int i = 0; i < board_size; i++)
@@ -510,10 +550,76 @@ void Game::DrawBoard()
 
 void Game::DrawText()
 {
-	std::string text_for_score;
+	std::string text_for_score = "";
 	int points_copy = points;
-
+	while (points_copy != 0)
+	{
+		char c = points_copy % 10 + 48;
+		if (text_for_score == "")
+			text_for_score.push_back(c);
+		else text_for_score.insert(0, 1, c);
+		points_copy /= 10;
+	}
+	this->text.setString(text_for_score);
+	this->window->draw(text);
 }
+
+void Game::DrawOptions()
+{
+
+	text2.setFont(font);
+	text2.setCharacterSize(60);
+	text2.setFillColor(sf::Color::Black);
+	int begin1 = 750, begin2 = 200;
+
+	if (put_options.size() == 0 && guessed > 0)
+	{
+		put_options.push_back(guessed);
+		int correct = rand() % 4;
+		
+
+		for (int i = 0; i < 4; i++)
+		{
+			text2.setPosition(begin1, begin2);
+			begin2 += 70;
+			if (i == correct)
+				text2.setString(all_countries[guessed]);
+			else
+			{
+				int possible_option = rand() % 59;
+				bool found = 1;
+				while (found)
+				{
+					found = 0;
+					for (int i = 0; i < put_options.size(); i++)
+						if (put_options[i] == possible_option)
+						{
+							found = 1; possible_option = rand() % 59; break;
+						}
+				}
+				put_options.push_back(possible_option);
+				text2.setString(all_countries[possible_option]);
+			}
+
+			this->window->draw(text2);
+
+			/*for (int i = 0; i < put_options.size(); i++)
+				std::cout << put_options[i] << " ";
+			std::cout << "\n";*/
+		}
+	}
+	else
+	{
+		for (int i = 0; i < put_options.size(); i++)
+		{
+			text2.setPosition(begin1, begin2);
+			begin2 += 70;
+			text2.setString(all_countries[put_options[i]]);
+			this->window->draw(text2);
+		}
+	}
+}
+
 
 void Game::Update()
 {
@@ -521,9 +627,13 @@ void Game::Update()
 	else this->PollEvents();
 }
 
+
 void Game::Render()
 {
 	//RENDER LUCRURI
+
+	this->window->clear();
+
 	this->DrawBackground();
 
 	this->DrawBoard();
@@ -531,6 +641,13 @@ void Game::Render()
 	this->DrawText();
 
 	this->DrawButtons();
+
+	if (match1 != match2)
+	{
+		match2++; ok = 1; put_options.clear();
+	}
+
+	if(match1 >= 1) this->DrawOptions();
 
 	this->window->display();
 
