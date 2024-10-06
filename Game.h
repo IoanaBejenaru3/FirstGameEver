@@ -65,7 +65,7 @@ private:
 	GameTile board[board_size][board_size];
 	//sf::Sound wrong_sound, right_sound;
 	bool end_game;
-	int points = 0;
+	int points;
 
 	void InitialiseText();
 	void InitialiseButtons();

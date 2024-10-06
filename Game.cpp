@@ -214,9 +214,11 @@ bool set_numbers[200]; //un vector caracteristic in care tinem minte daca tilex 
 
 int match1, match2; //sa tin evidenta perechilor mathc-uite, ma ajuta si sa stiu cee variante scriu si cand
 int guessed;
+int correct; //sa stim mereu care este optiunea corecta
+int erased1 = -1, erased2 = -1; //sa stim care sunt cele care trebuiesc sterse, dar -1 pentru a nu sterge nimic in cazul in care butonul hint nu este clicked
 
 bool ok; //sa stiu daca maii am voie sa dau click pe board sau nu, daca nu inseamnca ca s a facut un meci si am voie sa dau click doar pe text si pe butoane
-
+bool hint_button_activated; //pentru a elimina doua din optiunile afisate
 std::vector <int> put_options;
 
 /*void Game::InitialiseSounds()
@@ -325,6 +327,7 @@ Game::Game()
 	this->InitialiseBackground();
 	this->InitialiseTextureTurned();
 	this->SetUpBoard();
+	this->points = 0;
 }
 
 
@@ -425,6 +428,8 @@ void Game::CheckMatch()
 		std::cout << this->points << std::endl;
 		match1++;
 		guessed = board[turned_sprite1_i][turned_sprite1_j].country_number;
+		correct = rand() % 4;
+		std::cout << guessed << " " << correct << "\n";
 		return;
 	}
 	//TO ADD: daca nu sunt matched vreau un sound si un sprite cu un X si fundal transparent care sa apara
@@ -499,11 +504,29 @@ void Game::PollEvents() //cum poate interactiona playerul cu fereastra jocului
 						ok = 0;
 						put_options.clear();
 						guessed = -1;
+						erased1 = -1;
+						erased2 = -1;
 					}
-					else if (hint_button.sprite.getGlobalBounds().contains(mouse_position))
+					else if (hint_button.sprite.getGlobalBounds().contains(mouse_position) && hint_button_activated == 0)
 					{
-						points -= 250;
+						hint_button_activated = 1; 
 
+						if (points - 250 >= 0)
+						{
+							points -= 250;
+
+							//gasim erased1 si erased2 doar daca butonul de hint este apasat
+							erased1 = rand() % 4; erased2 = rand() % 4;
+							while (erased1 == correct)
+								erased1 = rand() % 4;
+							while (erased2 == correct || erased2 == erased1)
+								erased2 = rand() % 4;
+						}
+						else
+						{
+							//ceva care arata not enough points
+							hint_button_activated = 0;
+						}
 					}
 				}
 			
@@ -552,6 +575,7 @@ void Game::DrawText()
 {
 	std::string text_for_score = "";
 	int points_copy = points;
+	if(points == 0) text_for_score.push_back('0');
 	while (points_copy != 0)
 	{
 		char c = points_copy % 10 + 48;
@@ -574,16 +598,15 @@ void Game::DrawOptions()
 
 	if (put_options.size() == 0 && guessed > 0)
 	{
-		put_options.push_back(guessed);
-		int correct = rand() % 4;
-		
-
 		for (int i = 0; i < 4; i++)
 		{
 			text2.setPosition(begin1, begin2);
 			begin2 += 70;
 			if (i == correct)
+			{
 				text2.setString(all_countries[guessed]);
+				put_options.push_back(guessed);
+			}
 			else
 			{
 				int possible_option = rand() % 59;
@@ -592,30 +615,27 @@ void Game::DrawOptions()
 				{
 					found = 0;
 					for (int i = 0; i < put_options.size(); i++)
-						if (put_options[i] == possible_option)
+						if (put_options[i] == possible_option || possible_option == guessed) //daca am pus acea tara deja sau daca e cea corecta
 						{
-							found = 1; possible_option = rand() % 59; break;
+							found = 1; possible_option = rand() % 59; break; //incercam sa gasim una care respecta conditiile din nou
 						}
 				}
-				put_options.push_back(possible_option);
-				text2.setString(all_countries[possible_option]);
+				put_options.push_back(possible_option); //pe pozitia i am pus tara possible_option 
+				text2.setString(all_countries[possible_option]); //si am si setat stringul pentru a putea fi afisat
 			}
 
 			this->window->draw(text2);
-
-			/*for (int i = 0; i < put_options.size(); i++)
-				std::cout << put_options[i] << " ";
-			std::cout << "\n";*/
 		}
 	}
 	else
 	{
-		for (int i = 0; i < put_options.size(); i++)
+		for (int i = 0; i < 4; i++)
 		{
 			text2.setPosition(begin1, begin2);
 			begin2 += 70;
-			text2.setString(all_countries[put_options[i]]);
-			this->window->draw(text2);
+			text2.setString(all_countries[put_options[i]]); //vrem sa le pastram pozitiile pe ecran 
+			if(i != erased1 && i != erased2) this->window->draw(text2); //dar nu vrem sa le afisam pe cele doua nepotrivite
+			
 		}
 	}
 }
@@ -644,10 +664,10 @@ void Game::Render()
 
 	if (match1 != match2)
 	{
-		match2++; ok = 1; put_options.clear();
+		match2++; ok = 1; hint_button_activated = 0; put_options.clear();
 	}
 
-	if(match1 >= 1) this->DrawOptions();
+	if(ok == 1) this->DrawOptions();
 
 	this->window->display();
 
